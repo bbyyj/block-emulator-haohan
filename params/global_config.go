@@ -6,6 +6,7 @@ var (
 	NodesInShard   = 4         // # of Nodes in a shard.
 	ShardNum       = 4         // # of shards.
 	ExpDataRootDir = "expTest" // The root dir where the experimental data should locate.
+	Algorithm      = "monoxide"
 )
 
 var (
@@ -20,8 +21,8 @@ var (
 	LogWrite_path      = ExpDataRootDir + "/log"       // Log output path
 	DatabaseWrite_path = ExpDataRootDir + "/database/" // database write path
 
-	SupervisorAddr = "127.0.0.1:18800"        // Supervisor ip address
-	FileInput      = `./selectedTxs_300K.csv` // The raw BlockTransaction data path
+	SupervisorAddr = "127.0.0.1:28800"                         // Supervisor ip address
+	FileInput      = `./1000000to1999999_BlockTransaction.csv` // The raw BlockTransaction data path
 
 	ReconfigTimeGap = 50 // The time gap between epochs. This variable is only used in CLPA / CLPA_Broker now.
 )

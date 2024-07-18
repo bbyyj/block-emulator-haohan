@@ -2,6 +2,7 @@ package pbft_all
 
 import (
 	"blockEmulator/message"
+	"blockEmulator/params"
 	"encoding/json"
 	"log"
 )
@@ -32,7 +33,13 @@ func (rrom *RawRelayOutsideModule) handleRelay(content []byte) {
 		log.Panic(err)
 	}
 	rrom.pbftNode.pl.Plog.Printf("S%dN%d : has received relay txs from shard %d, the senderSeq is %d\n", rrom.pbftNode.ShardID, rrom.pbftNode.NodeID, relay.SenderShardID, relay.SenderSeq)
-	rrom.pbftNode.CurChain.Txpool.AddTxs2Pool(relay.Txs)
+
+	if params.Algorithm == "monoxide" || params.Algorithm == "delayfirst" {
+		rrom.pbftNode.CurChain.Txpool.AddTxs2Pool(relay.Txs) //relayTX加入交易池队末
+	} else {
+		rrom.pbftNode.CurChain.Txpool.AddTxs2Pool_Head(relay.Txs) //relayTX加入交易池队首
+	}
+
 	rrom.pbftNode.seqMapLock.Lock()
 	rrom.pbftNode.seqIDMap[relay.SenderShardID] = relay.SenderSeq
 	rrom.pbftNode.seqMapLock.Unlock()

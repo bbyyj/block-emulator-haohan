@@ -13,6 +13,7 @@ import (
 	"blockEmulator/supervisor/supervisor_log"
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -46,13 +47,14 @@ type Supervisor struct {
 }
 
 func (d *Supervisor) NewSupervisor(ip string, pcc *params.ChainConfig, committeeMethod string, measureModNames ...string) {
+	fmt.Println("123")
 	d.IPaddr = ip
 	d.ChainConfig = pcc
 	d.Ip_nodeTable = params.IPmap_nodeTable
 
 	d.sl = supervisor_log.NewSupervisorLog()
 
-	d.Ss = signal.NewStopSignal(2 * int(pcc.ShardNums))
+	d.Ss = signal.NewStopSignal(6 * int(pcc.ShardNums))
 
 	switch committeeMethod {
 	case "CLPA_Broker":
@@ -65,7 +67,10 @@ func (d *Supervisor) NewSupervisor(ip string, pcc *params.ChainConfig, committee
 		d.comMod = committee.NewRelayCommitteeModule(d.Ip_nodeTable, d.Ss, d.sl, params.FileInput, params.TotalDataSize, params.BatchSize)
 	}
 
+	d.sl.Slog.Println("Supervisor build done.")
+
 	d.testMeasureMods = make([]measure.MeasureModule, 0)
+	d.testMeasureMods = append(d.testMeasureMods, measure.NewTestUtilityFunction())
 	for _, mModName := range measureModNames {
 		switch mModName {
 		case "TPS_Relay":
@@ -89,6 +94,8 @@ func (d *Supervisor) NewSupervisor(ip string, pcc *params.ChainConfig, committee
 		default:
 		}
 	}
+
+	d.sl.Slog.Println("Supervisor build done.")
 }
 
 // Supervisor received the block information from the leaders, and handle these
@@ -99,11 +106,14 @@ func (d *Supervisor) handleBlockInfos(content []byte) {
 	if err != nil {
 		log.Panic()
 	}
+
 	// StopSignal check
-	if bim.BlockBodyLength == 0 {
+	if bim.BlockBodyLength > 0 {
 		d.Ss.StopGap_Inc()
-	} else {
-		d.Ss.StopGap_Reset()
+	}
+
+	if d.Ss.GapEnough() {
+		return
 	}
 
 	d.comMod.HandleBlockInfo(bim)
@@ -118,6 +128,8 @@ func (d *Supervisor) handleBlockInfos(content []byte) {
 // read transactions from dataFile. When the number of data is enough,
 // the Supervisor will do re-partition and send partitionMSG and txs to leaders.
 func (d *Supervisor) SupervisorTxHandling() {
+	d.sl.Slog.Println("Supervisor start. ")
+
 	d.comMod.MsgSendingControl()
 
 	// TxHandling is end

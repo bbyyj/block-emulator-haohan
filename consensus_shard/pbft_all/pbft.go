@@ -51,6 +51,7 @@ type PbftConsensusNode struct {
 	height2Digest     map[uint64]string               // sequence (block height) -> request, fast read
 
 	// pbft stage wait
+	pbftRound              int32
 	pbftStage              atomic.Int32 // 1->Preprepare, 2->Prepare, 3->Commit, 4->Done
 	pbftLock               sync.Mutex
 	conditionalVarpbftLock sync.Cond
@@ -159,6 +160,7 @@ func NewPbftNode(shardID, nodeID uint64, pcc *params.ChainConfig, messageHandleT
 	// set pbft stage now
 	p.conditionalVarpbftLock = *sync.NewCond(&p.pbftLock)
 	p.pbftStage.Store(1)
+	p.pbftRound = -1
 
 	return p
 }

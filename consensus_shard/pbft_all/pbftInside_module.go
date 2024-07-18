@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"sync/atomic"
 	"time"
 )
 
@@ -64,6 +65,13 @@ func (rphm *RawRelayPbftExtraHandleMod) HandleinCommit(cmsg *message.Commit) boo
 	// now try to relay txs to other shards (for main nodes)
 	if rphm.pbftNode.NodeID == rphm.pbftNode.view {
 		rphm.pbftNode.pl.Plog.Printf("S%dN%d : main node is trying to send relay txs at height = %d \n", rphm.pbftNode.ShardID, rphm.pbftNode.NodeID, block.Header.Number)
+
+		if len(block.Body) == 0 && rphm.pbftNode.pbftRound == -1 {
+
+		} else {
+			atomic.AddInt32(&rphm.pbftNode.pbftRound, 1)
+		}
+
 		// generate relay pool and collect txs excuted
 		rphm.pbftNode.CurChain.Txpool.RelayPool = make(map[uint64][]*core.Transaction)
 		interShardTxs := make([]*core.Transaction, 0)
@@ -116,7 +124,7 @@ func (rphm *RawRelayPbftExtraHandleMod) HandleinCommit(cmsg *message.Commit) boo
 		bim := message.BlockInfoMsg{
 			BlockBodyLength: len(block.Body),
 			InnerShardTxs:   interShardTxs,
-			Epoch:           0,
+			Epoch:           int(rphm.pbftNode.pbftRound),
 
 			Relay1Txs: relay1Txs,
 			Relay2Txs: relay2Txs,
