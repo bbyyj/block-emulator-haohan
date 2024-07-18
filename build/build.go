@@ -4,7 +4,6 @@ import (
 	"blockEmulator/consensus_shard/pbft_all"
 	"blockEmulator/params"
 	"blockEmulator/supervisor"
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -60,7 +59,6 @@ func BuildSupervisor(nnm, snm, mod uint64) {
 	measureMod = append(measureMod, "Tx_Details")
 
 	lsn := new(supervisor.Supervisor)
-	fmt.Println("123")
 	lsn.NewSupervisor(params.SupervisorAddr, initConfig(123, nnm, 123, snm), params.CommitteeMethod[mod], measureMod...)
 	time.Sleep(10000 * time.Millisecond)
 	go lsn.SupervisorTxHandling()

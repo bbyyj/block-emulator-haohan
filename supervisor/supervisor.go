@@ -67,8 +67,6 @@ func (d *Supervisor) NewSupervisor(ip string, pcc *params.ChainConfig, committee
 		d.comMod = committee.NewRelayCommitteeModule(d.Ip_nodeTable, d.Ss, d.sl, params.FileInput, params.TotalDataSize, params.BatchSize)
 	}
 
-	d.sl.Slog.Println("Supervisor build done.")
-
 	d.testMeasureMods = make([]measure.MeasureModule, 0)
 	d.testMeasureMods = append(d.testMeasureMods, measure.NewTestUtilityFunction())
 	for _, mModName := range measureModNames {
