@@ -119,7 +119,7 @@ def multi_Clients_runing(shardNum,NodeNum,algorithm,totalDataSize,injectSpeed,ma
 def clear_history_expData():
     ports = {50001, 50002, 50003, 50005, 50006, 50007, 50008, 50009, 50010}
     for port in ports:
-        run_exe_remote(port=port, cmd=" rm -rf ~/haohanWorkSpace/block-emulator-main/record/ & rm -rf ~/haohanWorkSpace/block-emulator-main/result/ & rm -rf ~/haohanWorkSpace/block-emulator-main/log/",master=0)
+        run_exe_remote(port=port, cmd=" rm -rf ~/haohanWorkSpace/block-emulator-main/expTest",master=0)
         run_exe_remote(port=port, cmd=" killall -9 haohanBin",master=0)
         run_exe_remote(port=port,
                        cmd=" cd ~/haohanWorkSpace/block-emulator-main/ && fuser -k haohanBin",master=0)
@@ -161,10 +161,10 @@ for shard in shardNum:
             clear_history_expData()
             # scp_files_to_remote()
             multi_Clients_runing(shard,nodeNum,algo,datasize,injectSpeed,maxBlockSize_global,block_Interval)
-            local_path = "./Emulator/tx_number/t2_shardNum={}_nodeNum={}_algorithm={}_totalDataSize={}_injectSpeed={}_maxBlockSize_global={}_block_Interval={}".format(
-                shard, nodeNum, algo, datasize, injectSpeed, maxBlockSize_global, block_Interval
-            )
-            download_from_remote("~/haohanWorkSpace/block-emulator-main/result",local_path)
+            # local_path = "./Emulator/tx_number/t2_shardNum={}_nodeNum={}_algorithm={}_totalDataSize={}_injectSpeed={}_maxBlockSize_global={}_block_Interval={}".format(
+            #     shard, nodeNum, algo, datasize, injectSpeed, maxBlockSize_global, block_Interval
+            # )
+            # download_from_remote("~/haohanWorkSpace/block-emulator-main/result",local_path)
 
 
 

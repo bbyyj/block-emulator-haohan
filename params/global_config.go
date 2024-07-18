@@ -21,7 +21,7 @@ var (
 	LogWrite_path      = ExpDataRootDir + "/log"       // Log output path
 	DatabaseWrite_path = ExpDataRootDir + "/database/" // database write path
 
-	SupervisorAddr = "127.0.0.1:28800"                         // Supervisor ip address
+	SupervisorAddr = "192.168.3.2:28800"                       // Supervisor ip address
 	FileInput      = `./1000000to1999999_BlockTransaction.csv` // The raw BlockTransaction data path
 
 	ReconfigTimeGap = 50 // The time gap between epochs. This variable is only used in CLPA / CLPA_Broker now.
