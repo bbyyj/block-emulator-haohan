@@ -4,38 +4,43 @@ import (
 	"blockEmulator/consensus_shard/pbft_all"
 	"blockEmulator/params"
 	"blockEmulator/supervisor"
-	"strconv"
+	"encoding/json"
+	"fmt"
+	"os"
 	"time"
 )
 
-func initConfig(nid, nnm, sid, snm uint64) *params.ChainConfig {
-	params.ShardNum = int(snm)
-	nowIpPort := 3
-	shardsInMechine := params.ShardNum / 8
-	for gap := 0; gap < int(snm); gap += shardsInMechine {
-		for i := gap; i < gap+shardsInMechine; i++ {
-
-			if _, ok := params.IPmap_nodeTable[uint64(i)]; !ok {
-				params.IPmap_nodeTable[uint64(i)] = make(map[uint64]string)
-			}
-			if nowIpPort == 5 {
-				for j := uint64(0); j < nnm; j++ {
-					params.IPmap_nodeTable[uint64(i)][j] = "192.168.3.11:" + strconv.Itoa(31800+(i-gap)*100+int(j))
-				}
-			} else {
-				for j := uint64(0); j < nnm; j++ {
-					params.IPmap_nodeTable[uint64(i)][j] = "192.168.3." + strconv.Itoa(nowIpPort) + ":" + strconv.Itoa(31800+(i-gap)*100+int(j))
-				}
-			}
-
-		}
-		nowIpPort++
+func generateLogicNetTopo(nnm, snm uint64) {
+	// Read the contents of ip.json file
+	file, err := os.ReadFile("ip.json")
+	if err != nil {
+		// handle error
+		fmt.Println(err)
+		return
 	}
-
+	// Create a map to store the IP addresses
+	var ipMap map[uint64]map[uint64]string
+	// Unmarshal the JSON data into the map
+	err = json.Unmarshal(file, &ipMap)
+	if err != nil {
+		// handle error
+		fmt.Println(err)
+		return
+	}
+	params.IPmap_nodeTable = ipMap
 	params.IPmap_nodeTable[params.DeciderShard] = make(map[uint64]string)
 	params.IPmap_nodeTable[params.DeciderShard][0] = params.SupervisorAddr
 	params.NodesInShard = int(nnm)
 	params.ShardNum = int(snm)
+}
+
+//func initConfig(nid, nnm, sid, snm uint64) *params.ChainConfig {
+//	generateLogicNetTopo(nnm, snm)
+//
+//}
+
+func initConfig(nid, nnm, sid, snm uint64) *params.ChainConfig {
+	generateLogicNetTopo(nnm, snm)
 	pcc := &params.ChainConfig{
 		ChainID:        sid,
 		NodeID:         nid,

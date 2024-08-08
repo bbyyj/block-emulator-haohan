@@ -23,9 +23,10 @@ from threading import Thread
 #         port = 50001+i
 #         ports.append(port)
 
-ports = {50001, 50002, 50003, 50005, 50006, 50007, 50008, 50009, 50010}
+
 def scp_files_to_remote():
     i = 1
+    ports = {50001, 50002,50003, 50004, 50005, 50006, 50007, 50008, 50009, 50010}
     for port in ports:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # 自动添加主机名及主机密钥到本地HostKeys对象，并保存，只在代理模式下使用
@@ -34,7 +35,7 @@ def scp_files_to_remote():
         print('Connected!!!!!!!!')
         with SCPClient(ssh.get_transport()) as scp:
             scp.put('./haohanBin', recursive=True, remote_path='~/haohanWorkSpace/block-emulator-main/')
-            # scp.put('./bEmulator_LW/ip.json', recursive=True, remote_path=' ~/haohanWorkSpace/block-emulator-main/')
+            scp.put('./ip.json', recursive=True, remote_path='~/haohanWorkSpace/block-emulator-main/')
             scp.close()
         ssh.close()
         i += 1
@@ -89,6 +90,13 @@ def multi_Clients_runing(shardNum,NodeNum,algorithm,totalDataSize,injectSpeed,ma
     base_port = 50002
     base_cmd = "cd ~/haohanWorkSpace/block-emulator-main/ && sh bat_shardNum={}_NodeNum={}_mod=Relay_{}.sh {} {} {} {} {}"
 
+    # for i in range(8):
+    #     port = base_port + i
+    #     cmd = base_cmd.format(shardNum,NodeNum,port,algorithm,totalDataSize,injectSpeed,maxBlockSize_global,block_Interval)
+    #
+    #     client = Thread(target=run_exe_remote, args=(port, cmd,0))
+    #     threads.append(client)  # 将线程对象添加到列表中
+    #     client.start()
     for i in range(8):
         port = base_port + i
         cmd = base_cmd.format(shardNum,NodeNum,port,algorithm,totalDataSize,injectSpeed,maxBlockSize_global,block_Interval)
@@ -117,7 +125,7 @@ def multi_Clients_runing(shardNum,NodeNum,algorithm,totalDataSize,injectSpeed,ma
 
 
 def clear_history_expData():
-    ports = {50001, 50002, 50003, 50005, 50006, 50007, 50008, 50009, 50010}
+    ports = {50001, 50002, 50003, 50004,50005, 50006, 50007, 50008, 50009, 50010}
     for port in ports:
         run_exe_remote(port=port, cmd=" rm -rf ~/haohanWorkSpace/block-emulator-main/expTest",master=0)
         run_exe_remote(port=port, cmd=" killall -9 haohanBin",master=0)
@@ -144,27 +152,29 @@ def clear_history_expData():
 
 # 1. 实验1：改变交易的数量
 # default config
-shardNum = [8]
+shardNum = [16]
 nodeNum = 4
 algorithm =[2]
-totalDataSize =[900000]#[800000 , 900000 , 1000000]
+totalDataSize =900000#[800000 , 900000 , 1000000]
 injectSpeed = 5000
-maxBlockSize_global =2000
+maxBlockSize_global =[1000]
 block_Interval =6000
 
 for shard in shardNum:
-    for datasize in totalDataSize:
+    for blg in maxBlockSize_global:
         for algo in algorithm:
-            print("--------------------------------------------------------------------------------------------------------")
+            print(
+                "--------------------------------------------------------------------------------------------------------")
             print(
                 "--------------------------------------------------------------------------------------------------------")
             clear_history_expData()
             # scp_files_to_remote()
-            multi_Clients_runing(shard,nodeNum,algo,datasize,injectSpeed,maxBlockSize_global,block_Interval)
-            # local_path = "./Emulator/tx_number/t2_shardNum={}_nodeNum={}_algorithm={}_totalDataSize={}_injectSpeed={}_maxBlockSize_global={}_block_Interval={}".format(
-            #     shard, nodeNum, algo, datasize, injectSpeed, maxBlockSize_global, block_Interval
-            # )
-            # download_from_remote("~/haohanWorkSpace/block-emulator-main/result",local_path)
+            multi_Clients_runing(shard, nodeNum, algo, totalDataSize, injectSpeed, blg, block_Interval)
+            local_path = "D:/Code/python/实验画图代码/BlockSize/shardNum={}_nodeNum={}_algorithm={}_totalDataSize={}_injectSpeed={}_maxBlockSize_global={}_block_Interval={}".format(
+                shard, nodeNum, algo, totalDataSize, injectSpeed, blg, block_Interval
+            )
+            download_from_remote("~/haohanWorkSpace/block-emulator-main/expTest/result", local_path)
+
 
 
 

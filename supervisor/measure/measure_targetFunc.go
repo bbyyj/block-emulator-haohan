@@ -77,13 +77,13 @@ func (tml *TestUtilityFunction) UpdateMeasureRecord(b *message.BlockInfoMsg) {
 func (tml *TestUtilityFunction) HandleExtraMessage([]byte) {}
 
 func ComputeUtilityFunction(itxNum, r1Num, r2Num float64, blockHeightGap int) float64 {
-	a, b := 0.5, 2.0
-	return itxNum + a*r1Num + b*r2Num - float64(blockHeightGap)
+
+	return 0.1*itxNum + 0.2*r1Num + 0.7*r2Num - 0.25*float64(blockHeightGap)
 }
 
 func ComputeUtilityFunctionFirst(itxNum, r1Num, r2Num float64) float64 {
-	a, b := 0.5, 2.0
-	return itxNum + a*r1Num + b*r2Num
+
+	return 0.1*itxNum + 0.2*r1Num + 0.7*r2Num
 }
 
 func ComputeUtilityFunctionSecond(blockHeightGap int) float64 {

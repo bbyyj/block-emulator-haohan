@@ -98,7 +98,7 @@ func (txpool *TxPool) PackTxs(max_txs uint64) []*Transaction {
 	if params.Algorithm == "monoxide" {
 		txpool.lock.Lock()
 		defer txpool.lock.Unlock()
-		bubbleSort(txpool) // 按照时间先后顺序优先打包等待时间久的交易
+		//bubbleSort(txpool) // 按照时间先后顺序优先打包等待时间久的交易
 		txNum := max_txs
 		if uint64(len(txpool.TxQueue)) < txNum {
 			txNum = uint64(len(txpool.TxQueue))
@@ -109,7 +109,7 @@ func (txpool *TxPool) PackTxs(max_txs uint64) []*Transaction {
 	} else if params.Algorithm == "delayfirst" {
 		txpool.lock.Lock()
 		defer txpool.lock.Unlock()
-		//bubbleSort(txpool) // 按照时间先后顺序优先打包等待时间久的交易
+		bubbleSort(txpool) // 按照时间先后顺序优先打包等待时间久的交易
 		txNum := max_txs
 		if uint64(len(txpool.TxQueue)) < txNum {
 			txNum = uint64(len(txpool.TxQueue))
